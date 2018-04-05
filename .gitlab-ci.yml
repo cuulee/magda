@@ -19,7 +19,8 @@ cache:
   - magda-typescript-common/node_modules/
 
 before_script:
-  - apt-get update -qq
+  - apt-get update -y  
+  - apt-get install sbt -y
   - npm install -g lerna
 
 build:
