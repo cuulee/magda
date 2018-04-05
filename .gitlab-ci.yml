@@ -24,4 +24,5 @@ before_script:
 
 build:
   script:
+    - lerna bootstrap --scope=@magda/scripts 
     - npm run node-ci
