@@ -7,12 +7,12 @@ variables:
   # use the next-gen collector that every blog on the internet says not to use because we know better than them
   # use < 25% of time for GC
   # put the ivy cache in the workspace where gitlab can cache it
+    #   -Xms3000M -Xmx3000M
+    # -XX:+CMSClassUnloadingEnabled
+    # -XX:MaxGCPauseMillis=1000
+    # -XX:+UseG1GC
+    # -XX:GCTimeRatio=3
   SBT_OPTS: >
-    -Xms3000M -Xmx3000M
-    -XX:+CMSClassUnloadingEnabled
-    -XX:MaxGCPauseMillis=1000
-    -XX:+UseG1GC
-    -XX:GCTimeRatio=3
     -Dsbt.global.base=sbt-cache/sbtboot -Dsbt.boot.directory=sbt-cache/boot -Dsbt.ivy.home=sbt-cache/ivy
   CI: "true"
 
@@ -24,7 +24,7 @@ cache:
   - "sbt-cache/sbtboot"
   - "sbt-cache/target"
   - "node_modules/"
-  - "*/node_modules/"
+  - "*/node_modules"
 
 test-node:
   script:
