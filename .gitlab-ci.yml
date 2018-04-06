@@ -1,18 +1,18 @@
 image: data61/magda-builder:0.0.38-0
 
 variables:
+  # 3gb heap
+  # unload classes we don't need
+  # aim for < 1000ms gc pauses (largely ignored)
+  # use the next-gen collector that every blog on the internet says not to use because we know better than them
+  # use < 25% of time for GC
+  # put the ivy cache in the workspace where gitlab can cache it
   SBT_OPTS: >
-    # 3gb heap
     -Xms3000M -Xmx3000M
-    # unload classes we don't need
     -XX:+CMSClassUnloadingEnabled
-    # aim for < 1000ms gc pauses (largely ignored)
     -XX:MaxGCPauseMillis=1000
-    # use the next-gen collector that every blog on the internet says not to use because we know better than them
     -XX:+UseG1GC
-    # use < 25% of time for GC
     -XX:GCTimeRatio=3
-    # put the ivy cache in the workspace where gitlab can cache it
     -Dsbt.global.base=sbt-cache/sbtboot -Dsbt.boot.directory=sbt-cache/boot -Dsbt.ivy.home=sbt-cache/ivy
   CI: "true"
 
