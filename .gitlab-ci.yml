@@ -30,6 +30,12 @@ test-node:
     - npm run node-ci
 
 test-scala:
+  services:
+    - postgres:9.6
+  variables:
+    POSTGRES_DB: postgres
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: ""
   script:
     - "echo $SBT_OPTS"
     - sbt test
