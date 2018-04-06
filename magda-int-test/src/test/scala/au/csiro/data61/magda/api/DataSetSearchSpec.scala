@@ -521,7 +521,6 @@ class DataSetSearchSpec extends BaseSearchApiSpec {
     }
 
     def doFilterTest(query: String, dataSets: List[DataSet], routes: Route)(test: (SearchResult) => Unit) = {
-      println(query)
       Get(s"/v0/datasets?${query}&limit=${dataSets.length}") ~> routes ~> check {
         status shouldBe OK
         val response = responseAs[SearchResult]
@@ -631,7 +630,6 @@ class DataSetSearchSpec extends BaseSearchApiSpec {
             status shouldBe OK
             val response = responseAs[SearchResult]
 
-            println(textQuery)
             queryEquals(response.query, query)
           }
         }
