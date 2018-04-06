@@ -1,6 +1,7 @@
 FROM hseeberger/scala-sbt:latest
 
 ENV SCALA_VERSION 2.11.12
+ENV SBT_VERSION 0.13.7
 ENV NODE_VERSION 9.10.1
 
 RUN groupadd --gid 1000 node \
