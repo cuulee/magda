@@ -695,20 +695,5 @@ class DataSetSearchSpec extends BaseSearchApiSpec {
         }
       }
     }
-
-    it("should not fail for arbitrary characters interspersed with control words") {
-      val controlWords = Seq("in", "by", "to", "from", "as", "and", "or")
-      val controlWordGen = Gen.oneOf(controlWords).flatMap(randomCaseGen)
-      val queryWordGen = Gen.oneOf(controlWordGen, Gen.oneOf(arbitrary[String], Gen.oneOf(".", "[", "]")))
-      val queryTextGen = Gen.listOf(queryWordGen).map(_.mkString(" "))
-
-      forAll(emptyIndexGen, queryTextGen) { (indexTuple, textQuery) =>
-        val (_, _, routes) = indexTuple
-
-        Get(s"/v0/datasets?query=${encodeForUrl(textQuery)}") ~> routes ~> check {
-          status shouldBe OK
-        }
-      }
-    }
   }
 }
