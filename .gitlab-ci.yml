@@ -16,13 +16,15 @@ variables:
     -Dsbt.global.base=sbt-cache/sbtboot -Dsbt.boot.directory=sbt-cache/boot -Dsbt.ivy.home=sbt-cache/ivy
   CI: "true"
 
-cache:
+cache:  
+  untracked: true
   paths:
   - "sbt-cache/ivy/cache"
   - "sbt-cache/boot"
   - "sbt-cache/sbtboot"
   - "sbt-cache/target"
-  - "**/node_modules/"
+  - "node_modules/"
+  - "*/node_modules/"
 
 test-node:
   script:
@@ -33,6 +35,7 @@ test-scala:
   services:
     - postgres:9.6
   variables:
+    POSTGRES_URL: "jdbc:postgresql://postgres/postgres"
     POSTGRES_DB: postgres
     POSTGRES_USER: postgres
     POSTGRES_PASSWORD: ""
