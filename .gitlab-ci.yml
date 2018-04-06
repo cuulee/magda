@@ -1,31 +1,41 @@
-image: node
+image: data61/magda-builder
+
+variables:
+  SBT_OPTS: >
+    # 3gb heap
+    -Xms3000M -Xmx3000M
+    # unload classes we don't need
+    -XX:+CMSClassUnloadingEnabled
+    # aim for < 1000ms gc pauses (largely ignored)
+    -XX:MaxGCPauseMillis=1000
+    # use the next-gen collector that every blog on the internet says not to use because we know better than them
+    -XX:+UseG1GC
+    # use < 25% of time for GC
+    -XX:GCTimeRatio=3
+    # put the ivy cache in the workspace where gitlab can cache it
+    -Dsbt.global.base=sbt-cache/sbtboot -Dsbt.boot.directory=sbt-cache/boot -Dsbt.ivy.home=sbt-cache/ivy
+  CI: "true"
 
 cache:
   paths:
-  - node_modules/
-  - magda-admin-api/node_modules/
-  - magda-authorization-api/node_modules/
-  - magda-ckan-connector/node_modules/
-  - magda-csw-connector/node_modules/
-  - magda-discussions-api/node_modules/
-  - magda-feedback-api/node_modules/
-  - magda-gateway/node_modules/
-  - magda-project-open-data-connector/node_modules/
-  - magda-sleuther-broken-link/node_modules/
-  - magda-sleuther-format/node_modules/
-  - magda-sleuther-framework/node_modules/
-  - magda-sleuther-linked-data-rating/node_modules/
-  - magda-sleuther-visualization/node_modules/
-  - magda-typescript-common/node_modules/
+  - "sbt-cache/ivy/cache"
+  - "sbt-cache/boot"
+  - "sbt-cache/sbtboot"
+  - "sbt-cache/target"
+  - "**/node_modules/"
 
-before_script:
-  - echo "deb http://dl.bintray.com/sbt/debian /" | tee -a /etc/apt/sources.list.d/sbt.list
-  - apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 642AC823
-  - apt-get update -y
-  - apt-get install sbt -y
-  - npm install -g lerna
-
-build:
+test-node:
   script:
     - lerna bootstrap --scope=@magda/scripts 
     - npm run node-ci
+
+test-scala:
+  script:
+    - sbt test
+
+test-ui:
+  script:
+    - lerna --concurrency 2 --scope @magda/web-client --scope @magda/preview-map bootstrap
+    - ./node_modules/.bin/eslint magda-web-client/src/
+    - lerna --scope @magda/web-client --scope @magda/preview-map run build
+    - lerna --scope @magda/preview-map --scope @magda/web-client run test
