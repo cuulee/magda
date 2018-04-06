@@ -1,31 +1,20 @@
 image: data61/magda-builder:0.0.38-0
 
 variables:
-  # 3gb heap
-  # unload classes we don't need
-  # aim for < 1000ms gc pauses (largely ignored)
-  # use the next-gen collector that every blog on the internet says not to use because we know better than them
-  # use < 25% of time for GC
-  # put the ivy cache in the workspace where gitlab can cache it
-
-  SBT_OPTS: >
-    -Xms2000M -Xmx2000M
-    -XX:+CMSClassUnloadingEnabled
-    -XX:MaxGCPauseMillis=1000
-    -XX:+UseG1GC
-    -XX:GCTimeRatio=3
-    -Dsbt.global.base=sbt-cache/sbtboot -Dsbt.boot.directory=sbt-cache/boot -Dsbt.ivy.home=sbt-cache/ivy
   CI: "true"
 
-cache:  
-  untracked: true
-  paths:
-  - "sbt-cache/ivy/cache"
-  - "sbt-cache/boot"
-  - "sbt-cache/sbtboot"
-  - "sbt-cache/target"
-  - "node_modules/"
-  - "*/node_modules"
+build:
+  cache:
+    paths:
+    - "sbt-cache/ivy/cache"
+    - "sbt-cache/boot"
+    - "sbt-cache/sbtboot"
+    - "sbt-cache/target"
+    - "node_modules/"
+    - "*/node_modules"
+  script:
+    - lerna bootstrap
+    - lerna run build --concurrency 4
 
 test-node:
   cache:
@@ -50,6 +39,19 @@ test-scala:
   services:
     - postgres:9.6
   variables:
+    # 3gb heap
+    # unload classes we don't need
+    # aim for < 1000ms gc pauses (largely ignored)
+    # use the next-gen collector that every blog on the internet says not to use because we know better than them
+    # use < 25% of time for GC
+    # put the ivy cache in the workspace where gitlab can cache it
+    SBT_OPTS: >
+      -Xms2000M -Xmx2000M
+      -XX:+CMSClassUnloadingEnabled
+      -XX:MaxGCPauseMillis=1000
+      -XX:+UseG1GC
+      -XX:GCTimeRatio=3
+      -Dsbt.global.base=sbt-cache/sbtboot -Dsbt.boot.directory=sbt-cache/boot -Dsbt.ivy.home=sbt-cache/ivy
     POSTGRES_URL: "jdbc:postgresql://postgres/postgres"
     POSTGRES_DB: postgres
     POSTGRES_USER: postgres
