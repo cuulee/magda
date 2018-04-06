@@ -1,4 +1,4 @@
-image: data61/magda-builder
+image: data61/magda-builder:0.0.38-0
 
 variables:
   SBT_OPTS: >
