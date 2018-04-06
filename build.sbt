@@ -18,7 +18,7 @@ lazy val packageJson = {
 lazy val commonSettings = Seq(
   organization := "au.csiro.data61",
   version := packageJson("version"),
-  scalaVersion := "2.11.8"
+  scalaVersion := "2.11.12"
 )
 
 lazy val root = (project in file("."))
