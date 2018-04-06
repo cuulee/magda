@@ -31,6 +31,7 @@ test-node:
 
 test-scala:
   script:
+    - "echo $SBT_OPTS"
     - sbt test
 
 test-ui:
