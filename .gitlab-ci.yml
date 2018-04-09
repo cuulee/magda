@@ -93,4 +93,4 @@ test-ui:
 build-docker:
   stage: build-docker
   script:
-    - "lerna run docker-build-prod --include-filtered-dependencies -- -- --repository=registry.gitlab.com/magda-data/magda --version=$CI_COMMIT_SHA
+    - "lerna run docker-build-prod --include-filtered-dependencies -- -- --repository=registry.gitlab.com/magda-data/magda --version=$CI_COMMIT_SHA"
