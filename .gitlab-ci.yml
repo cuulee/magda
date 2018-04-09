@@ -55,6 +55,9 @@ test-registry:
   stage: test
   dependencies:
   - build-scala
+  cache:
+    key: build-scala-1
+    policy: pull
   services:
     - postgres:9.6
   variables:
@@ -69,6 +72,9 @@ test-search:
   stage: test
   dependencies:
   - build-scala
+  cache:
+    key: build-scala-1
+    policy: pull
   variables:
     # 2.5gb heap
     # unload classes we don't need
@@ -102,6 +108,9 @@ test-ui:
   stage: test
   dependencies:
   - build-ui
+  cache:
+    key: build-ui-1
+    policy: pull
   stage: test
   script:
     - lerna --concurrency 2 --scope @magda/web-client --scope @magda/preview-map bootstrap
