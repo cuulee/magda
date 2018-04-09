@@ -95,13 +95,12 @@ test-search:
 build-ui:
   stage: build
   script:
-    - lerna --concurrency 2 --scope @magda/web-client --scope @magda/preview-map bootstrap
+    - lerna --scope @magda/web-client bootstrap
     - ./node_modules/.bin/eslint magda-web-client/src/
-    - lerna --scope @magda/web-client --scope @magda/preview-map run build
+    - lerna --scope @magda/web-client run build
   artifacts:
     paths:
     - magda-web-client/build
-    - magda-preview-map/build
     expire_in: 30 minutes
 
 test-ui:
@@ -113,8 +112,18 @@ test-ui:
     policy: pull
   stage: test
   script:
-    - lerna --concurrency 2 --scope @magda/web-client --scope @magda/preview-map bootstrap
+    - lerna --scope @magda/web-client --scope @magda/preview-map bootstrap
     - lerna --scope @magda/preview-map --scope @magda/web-client run test
+
+build-preview-map:
+  stage: build
+  script:
+    - lerna --scope @magda/preview-map bootstrap
+    - lerna --scope @magda/preview-map run build
+  artifacts:
+    paths:
+    - magda-preview-map/build
+    expire_in: 30 minutes
 
 build-docker:
   stage: build-docker
