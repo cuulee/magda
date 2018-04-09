@@ -5,24 +5,21 @@ const fse = require("fs-extra");
 const childProcess = require("child_process");
 const glob = require("glob");
 const _ = require("lodash");
+const yargs = require("yargs");
 
 const lernaJson = require("../lerna.json");
 
-// const commonPackages = [
-//   "@magda/typescript-common",
-//   "@magda/sleuther-framework"
-// ];
+const argv = yargs
+    .options({
+        command: {
+            description:
+                "The command to run inside lerna run, after having bootstrapped",
+            type: "string",
+            required: true
+        }
+    })
+    .help().argv;
 
-// const commonResults = commonPackages.map(package =>
-//   childProcess.spawnSync(
-//     "lerna",
-//     ["--scope ", package, "--concurrency", "4", "run", "build"],
-//     {
-//       stdio: ["pipe", "inherit", "inherit"],
-//       shell: true
-//     }
-//   )
-// );
 const excludePackages = [
     "@magda/web-client",
     "@magda/preview-map",
@@ -48,7 +45,7 @@ const jsPackages = _(lernaJson.packages)
     .filter(packageName => excludePackages.indexOf(packageName) === -1)
     .value();
 
-const commands = ["bootstrap", "run build", "run test"];
+const commands = ["bootstrap", "run " + argv.command];
 
 commands.forEach(command => {
     const result = childProcess.spawnSync(

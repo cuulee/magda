@@ -5,7 +5,8 @@ variables:
   SBT_OPTS: -Dsbt.global.base=sbt-cache/sbtboot -Dsbt.boot.directory=sbt-cache/boot -Dsbt.ivy.home=sbt-cache/ivy
 
 stages:
-  - build-test
+  - build
+  - test
   - build-docker
   - deploy-pr
   - deploy-dev
@@ -23,18 +24,25 @@ cache:
   - "*/target"
   key: $CI_JOB_NAME
 
-build-test-nodejs:
-  stage: build-test
+build-nodejs:
+  stage: build
   script:
     - lerna bootstrap --scope=@magda/scripts 
-    - npm run node-ci
+    - npm run node-ci -- --command=build
   artifacts:
     paths:
     - "*/dist"
     expire_in: 30 minutes
 
+# This doesn't actually have a dependency on building so just do it as part of build.
+test-nodejs:
+  stage: build
+  script:
+    - lerna bootstrap --scope=@magda/scripts 
+    - npm run node-ci -- --command=test
+
 build-scala:
-  stage: build-test
+  stage: build
   script:
     - sbt compile
   artifacts:
@@ -44,9 +52,9 @@ build-scala:
     expire_in: 30 minutes
 
 test-registry:
+  stage: test
   dependencies:
   - build-scala
-  stage: test
   services:
     - postgres:9.6
   variables:
@@ -58,9 +66,9 @@ test-registry:
     - sbt registryApi/test
 
 test-search:
+  stage: test
   dependencies:
   - build-scala
-  stage: test
   variables:
     # 2.5gb heap
     # unload classes we don't need
@@ -79,7 +87,7 @@ test-search:
     - sbt searchApi/test indexer/test intTest/test
 
 build-ui:
-  stage: build-test
+  stage: build
   script:
     - lerna --concurrency 2 --scope @magda/web-client --scope @magda/preview-map bootstrap
     - ./node_modules/.bin/eslint magda-web-client/src/
@@ -91,9 +99,10 @@ build-ui:
     expire_in: 30 minutes
 
 test-ui:
+  stage: test
   dependencies:
   - build-ui
-  stage: build-test
+  stage: test
   script:
     - lerna --concurrency 2 --scope @magda/web-client --scope @magda/preview-map bootstrap
     - lerna --scope @magda/preview-map --scope @magda/web-client run test
