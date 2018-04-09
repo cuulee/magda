@@ -49,6 +49,10 @@ build-scala:
     paths:
     - "*/target"
     - "target"
+    - "sbt-cache/ivy/cache"
+    - "sbt-cache/boot"
+    - "sbt-cache/sbtboot"
+    - "sbt-cache/target"
     expire_in: 30 minutes
 
 test-registry:
@@ -56,13 +60,7 @@ test-registry:
   dependencies:
   - build-scala
   cache:
-    key: build-scala
-    policy: pull
-    paths:
-    - "sbt-cache/ivy/cache"
-    - "sbt-cache/boot"
-    - "sbt-cache/sbtboot"
-    - "sbt-cache/target"
+    paths: []
   services:
     - postgres:9.6
   variables:
@@ -78,13 +76,7 @@ test-search:
   dependencies:
   - build-scala
   cache:
-    key: build-scala
-    policy: pull
-    paths:
-    - "sbt-cache/ivy/cache"
-    - "sbt-cache/boot"
-    - "sbt-cache/sbtboot"
-    - "sbt-cache/target"
+    paths: []
   services:
     - postgres:9.6
   variables:
