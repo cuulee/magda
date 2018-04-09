@@ -3,20 +3,18 @@ image: data61/magda-builder:0.0.38-0
 variables:
   CI: "true"
 
-build:
-  cache:
-    paths:
-    - "sbt-cache/ivy/cache"
-    - "sbt-cache/boot"
-    - "sbt-cache/sbtboot"
-    - "sbt-cache/target"
-    - "node_modules/"
-    - "*/node_modules"
-  script:
-    - lerna bootstrap
-    - lerna run build --concurrency 4
+stages:
+  - build-test
+  - build-docker
+  - deploy-pr
+  - deploy-dev
+  - deploy-prod
+
+cache:
+  key: $CI_JOB_NAME
 
 test-node:
+  stage: build-test
   cache:
     paths:
     - "sbt-cache/ivy/cache"
@@ -25,21 +23,30 @@ test-node:
     - "sbt-cache/target"
     - "node_modules/"
     - "*/node_modules"
+    - target
+    - "*/target"
   script:
     - lerna bootstrap --scope=@magda/scripts 
     - npm run node-ci
+  artifacts:
+    paths:
+    - "*/build"
+    expire_in: 30 minutes
 
 test-scala:
+  stage: build-test
   cache:  
     paths:
     - "sbt-cache/ivy/cache"
     - "sbt-cache/boot"
     - "sbt-cache/sbtboot"
     - "sbt-cache/target"
+    - target
+    - "*/target"
   services:
     - postgres:9.6
   variables:
-    # 3gb heap
+    # 2gb heap
     # unload classes we don't need
     # aim for < 1000ms gc pauses (largely ignored)
     # use the next-gen collector that every blog on the internet says not to use because we know better than them
@@ -59,8 +66,14 @@ test-scala:
   script:
     - "echo $SBT_OPTS"
     - sbt test
+  artifacts:
+    paths:
+    - "*/target"
+    - "target"
+    expire_in: 30 minutes
 
 test-ui:
+  stage: build-test
   cache:  
     paths:
       - "node_modules/"
@@ -71,3 +84,13 @@ test-ui:
     - ./node_modules/.bin/eslint magda-web-client/src/
     - lerna --scope @magda/web-client --scope @magda/preview-map run build
     - lerna --scope @magda/preview-map --scope @magda/web-client run test
+  artifacts:
+    paths:
+    - magda-web-client/build
+    - magda-preview-map/build
+    expire_in: 30 minutes
+
+build-docker:
+  stage: build-docker
+  script:
+    - "npm run docker-build-prod -- -- "
