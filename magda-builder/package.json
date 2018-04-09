@@ -4,7 +4,7 @@
     "description":
         "A base Docker image for PostgreSQL with Flyway for schema migrations.",
     "scripts": {
-        "build":
+        "build-docker":
             "create-docker-context-for-node-component --build --push --tag auto",
         "docker-build-local":
             "create-docker-context-for-node-component --build --push --tag auto --local"
