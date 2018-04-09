@@ -17,6 +17,16 @@ const argv = yargs
                 'The tag to pass to "docker build".  This parameter is only used if --build is specified.  If the value of this parameter is `auto`, a tag name is automatically created from NPM configuration.',
             type: "string"
         },
+        repository: {
+            description:
+                "The repository to use in auto tag generation. Will default to '', i.e. dockerhub unless --local is set. Requires --tag=auto",
+            type: "string"
+        },
+        version: {
+            description:
+                "The version to use in auto tag generation. Will default to the current version in package.json. Requires --tag=auto",
+            type: "string"
+        },
         output: {
             description:
                 "The output path and filename for the Docker context .tar file.",
@@ -150,30 +160,40 @@ if (argv.build) {
 }
 
 function getVersion() {
-    return !argv.local && process.env.npm_package_version
-        ? process.env.npm_package_version
-        : "latest";
+    return (
+        argv.version ||
+        (!argv.local && process.env.npm_package_version
+            ? process.env.npm_package_version
+            : "latest")
+    );
 }
 
 function getTag() {
     let tag = argv.tag;
     if (tag === "auto") {
-        const tagPrefix = argv.local ? "localhost:5000/" : "";
+        const tagPrefix = getRepository();
 
         const name = process.env.npm_package_config_docker_name
             ? process.env.npm_package_config_docker_name
             : process.env.npm_package_name
-              ? process.env.npm_package_name
-              : "UnnamedImage";
+                ? process.env.npm_package_name
+                : "UnnamedImage";
         tag = tagPrefix + name + ":" + getVersion();
     }
 
     return tag;
 }
 
+function getRepository() {
+    return (
+        (argv.repository && argv.repository + "/") ||
+        (argv.local ? "localhost:5000/" : "")
+    );
+}
+
 function updateDockerFile(sourceDir, destDir) {
     const tag = getVersion();
-    const repository = argv.local ? "localhost:5000/" : "";
+    const repository = getRepository();
     const dockerFileContents = fse.readFileSync(
         path.resolve(sourceDir, "Dockerfile"),
         "utf-8"
