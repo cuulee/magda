@@ -58,6 +58,11 @@ test-registry:
   cache:
     key: build-scala
     policy: pull
+    paths:
+    - "sbt-cache/ivy/cache"
+    - "sbt-cache/boot"
+    - "sbt-cache/sbtboot"
+    - "sbt-cache/target"
   services:
     - postgres:9.6
   variables:
@@ -75,6 +80,11 @@ test-search:
   cache:
     key: build-scala
     policy: pull
+    paths:
+    - "sbt-cache/ivy/cache"
+    - "sbt-cache/boot"
+    - "sbt-cache/sbtboot"
+    - "sbt-cache/target"
   services:
     - postgres:9.6
   variables:
