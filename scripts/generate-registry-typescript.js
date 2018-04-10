@@ -13,15 +13,18 @@ const swaggerJson = path.resolve(swaggerOutputDir, "swagger.json");
 fs.removeSync(outputDir);
 
 const sbt = spawnSync(
-    "sbt",
+    "cat",
     [
+        "/dev/null",
+        "|",
+        "sbt",
         '"registryApi/runMain au.csiro.data61.magda.registry.CommandLine ' +
             swaggerOutputDir +
             '"'
     ],
     {
         cwd: path.resolve(__dirname, ".."),
-        stdio: [0, 1, 2],
+        stdio: "inherit",
         shell: true
     }
 );
@@ -50,7 +53,7 @@ const java = spawnSync(
     ],
     {
         cwd: __dirname,
-        stdio: [0, 1, 2],
+        stdio: "inherit",
         shell: false
     }
 );

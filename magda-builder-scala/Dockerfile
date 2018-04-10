@@ -37,7 +37,6 @@ ENV PATH ${PATH}:${sbt_home}/bin
 RUN mkdir -p "$sbt_home" && \
     apk add --no-cache --update wget bash && \
     wget -qO - --no-check-certificate "http://dl.bintray.com/sbt/native-packages/sbt/$sbt_version/sbt-$sbt_version.tgz" | tar xz -C $sbt_home --strip-components=1 && \
-    apk del wget && \
-    sbt sbtVersion
+    apk del wget
 
 WORKDIR /app
