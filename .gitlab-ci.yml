@@ -5,9 +5,10 @@ variables:
   SBT_OPTS: -Dsbt.global.base=sbt-cache/sbtboot -Dsbt.boot.directory=sbt-cache/boot -Dsbt.ivy.home=sbt-cache/ivy
 
 stages:
+  - prebuild
   - build
   - test
-  - build-docker
+  - dockerize
   - deploy-pr
   - deploy-dev
   - deploy-prod
@@ -24,116 +25,118 @@ cache:
   - target
   - "*/target"
 
-build-nodejs:
-  stage: build
-  script:
-    - lerna bootstrap --scope=@magda/scripts 
-    - npm run node-ci -- --command=build
-  artifacts:
-    paths:
-    - "*/dist"
-    expire_in: 30 minutes
+include: magda-authorization-api/.gitlab-ci.yml
 
-# This doesn't actually have a dependency on building so just do it as part of build.
-test-nodejs:
-  stage: build
-  script:
-    - lerna bootstrap --scope=@magda/scripts 
-    - npm run node-ci -- --command=test
+# build-nodejs:
+#   stage: build
+#   script:
+#     - lerna bootstrap --scope=@magda/scripts 
+#     - npm run node-ci -- --command=build
+#   artifacts:
+#     paths:
+#     - "*/dist"
+#     expire_in: 30 minutes
 
-build-scala:
-  stage: build
-  script:
-    - sbt compile
-  artifacts:
-    paths:
-    - "*/target"
-    - "target"
-    - "sbt-cache/ivy/cache"
-    - "sbt-cache/boot"
-    - "sbt-cache/sbtboot"
-    - "sbt-cache/target"
-    expire_in: 30 minutes
+# # This doesn't actually have a dependency on building so just do it as part of build.
+# test-nodejs:
+#   stage: build
+#   script:
+#     - lerna bootstrap --scope=@magda/scripts 
+#     - npm run node-ci -- --command=test
 
-test-registry:
-  stage: test
-  dependencies:
-  - build-scala
-  cache:
-    paths: []
-  services:
-    - postgres:9.6
-  variables:
-    POSTGRES_URL: "jdbc:postgresql://postgres/postgres"
-    POSTGRES_DB: postgres
-    POSTGRES_USER: postgres
-    POSTGRES_PASSWORD: ""
-  script:
-    - sbt registryApi/test
+# build-scala:
+#   stage: build
+#   script:
+#     - sbt compile
+#   artifacts:
+#     paths:
+#     - "*/target"
+#     - "target"
+#     - "sbt-cache/ivy/cache"
+#     - "sbt-cache/boot"
+#     - "sbt-cache/sbtboot"
+#     - "sbt-cache/target"
+#     expire_in: 30 minutes
 
-test-search:
-  stage: test
-  dependencies:
-  - build-scala
-  cache:
-    paths: []
-  services:
-    - postgres:9.6
-  variables:
-    # 2.5gb heap
-    # unload classes we don't need
-    # aim for < 1000ms gc pauses (largely ignored)
-    # use the next-gen collector that every blog on the internet says not to use because we know better than them
-    # use < 25% of time for GC
-    # put the ivy cache in the workspace where gitlab can cache it
-    SBT_OPTS: >
-      -Xms2500M -Xmx2500M
-      -XX:+CMSClassUnloadingEnabled
-      -XX:MaxGCPauseMillis=1000
-      -XX:+UseG1GC
-      -XX:GCTimeRatio=3
-      -Dsbt.global.base=sbt-cache/sbtboot -Dsbt.boot.directory=sbt-cache/boot -Dsbt.ivy.home=sbt-cache/ivy
-  script:
-    - sbt searchApi/test indexer/test intTest/test
-
-build-ui:
-  stage: build
-  script:
-    - lerna --scope @magda/web-client bootstrap
-    - ./node_modules/.bin/eslint magda-web-client/src/
-    - lerna --scope @magda/web-client run build
-  artifacts:
-    paths:
-    - magda-web-client/build
-    expire_in: 30 minutes
-
-# test-ui:
+# test-registry:
 #   stage: test
 #   dependencies:
-#   - build-ui
+#   - build-scala
 #   cache:
-#     key: build-ui-1
-#     policy: pull
-#     paths:
-#     - "node_modules/"
-#     - "*/node_modules"
+#     paths: []
+#   services:
+#     - postgres:9.6
+#   variables:
+#     POSTGRES_URL: "jdbc:postgresql://postgres/postgres"
+#     POSTGRES_DB: postgres
+#     POSTGRES_USER: postgres
+#     POSTGRES_PASSWORD: ""
+#   script:
+#     - sbt registryApi/test
+
+# test-search:
 #   stage: test
+#   dependencies:
+#   - build-scala
+#   cache:
+#     paths: []
+#   services:
+#     - postgres:9.6
+#   variables:
+#     # 2.5gb heap
+#     # unload classes we don't need
+#     # aim for < 1000ms gc pauses (largely ignored)
+#     # use the next-gen collector that every blog on the internet says not to use because we know better than them
+#     # use < 25% of time for GC
+#     # put the ivy cache in the workspace where gitlab can cache it
+#     SBT_OPTS: >
+#       -Xms2500M -Xmx2500M
+#       -XX:+CMSClassUnloadingEnabled
+#       -XX:MaxGCPauseMillis=1000
+#       -XX:+UseG1GC
+#       -XX:GCTimeRatio=3
+#       -Dsbt.global.base=sbt-cache/sbtboot -Dsbt.boot.directory=sbt-cache/boot -Dsbt.ivy.home=sbt-cache/ivy
+#   script:
+#     - sbt searchApi/test indexer/test intTest/test
+
+# build-ui:
+#   stage: build
 #   script:
 #     - lerna --scope @magda/web-client bootstrap
-#     - lerna --scope @magda/web-client run test
+#     - ./node_modules/.bin/eslint magda-web-client/src/
+#     - lerna --scope @magda/web-client run build
+#   artifacts:
+#     paths:
+#     - magda-web-client/build
+#     expire_in: 30 minutes
 
-build-preview-map:
-  stage: build
-  script:
-    - lerna --scope @magda/preview-map bootstrap
-    - lerna --scope @magda/preview-map run build
-  artifacts:
-    paths:
-    - magda-preview-map/build
-    expire_in: 30 minutes
+# # test-ui:
+# #   stage: test
+# #   dependencies:
+# #   - build-ui
+# #   cache:
+# #     key: build-ui-1
+# #     policy: pull
+# #     paths:
+# #     - "node_modules/"
+# #     - "*/node_modules"
+# #   stage: test
+# #   script:
+# #     - lerna --scope @magda/web-client bootstrap
+# #     - lerna --scope @magda/web-client run test
 
-build-docker:
-  stage: build-docker
-  script:
-    - lerna bootstrap
-    - "lerna run docker-build-prod --include-filtered-dependencies -- -- --repository=registry.gitlab.com/magda-data/magda --version=$CI_COMMIT_SHA"
+# build-preview-map:
+#   stage: build
+#   script:
+#     - lerna --scope @magda/preview-map bootstrap
+#     - lerna --scope @magda/preview-map run build
+#   artifacts:
+#     paths:
+#     - magda-preview-map/build
+#     expire_in: 30 minutes
+
+# build-docker:
+#   stage: build-docker
+#   script:
+#     - lerna bootstrap
+#     - "lerna run docker-build-prod --include-filtered-dependencies -- -- --repository=registry.gitlab.com/magda-data/magda --version=$CI_COMMIT_SHA"

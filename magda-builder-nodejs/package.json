@@ -1,10 +1,9 @@
 {
-    "name": "@magda/builder",
+    "name": "@magda/builder-nodejs",
     "version": "0.0.38-0",
-    "description":
-        "A base Docker image for PostgreSQL with Flyway for schema migrations.",
+    "description": "Builder image for nodejs magda projects",
     "scripts": {
-        "build-docker":
+        "docker-build-prod":
             "create-docker-context-for-node-component --build --push --tag auto",
         "docker-build-local":
             "create-docker-context-for-node-component --build --push --tag auto --local"
@@ -13,7 +12,7 @@
     "license": "Apache-2.0",
     "config": {
         "docker": {
-            "name": "data61/magda-builder",
+            "name": "data61/magda-builder-nodejs",
             "include": "Dockerfile"
         }
     },

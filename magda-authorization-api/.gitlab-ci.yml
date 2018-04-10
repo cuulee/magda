@@ -1,0 +1,31 @@
+build:authorization-api:
+  stage: build
+  image: data61/magda-builder-nodejs:0.0.38-0
+  dependencies: prebuild:typescript-common
+  script:
+    - lerna bootstrap --scope=@magda/authorization-api 
+    - lerna run build --scope=@magda/authorization-api 
+  artifacts:
+    paths:
+    - "node_modules"
+    - "magda-authorization-api/dist"
+    - "magda-authorization-api/node_modules"
+    expire_in: 30 minutes
+
+test:authorization-api:
+  stage: test
+  image: data61/magda-builder-nodejs:0.0.38-0
+  dependencies: build:authorization-api
+  cache:
+    paths: []
+  script:
+    - lerna bootstrap --scope=@magda/authorization-api 
+    - lerna run test --scope=@magda/authorization-api
+
+dockerize:authorization-api:
+  stage: dockerize
+  image: data61/magda-builder-docker:0.0.38-0
+  dependencies: build:authorization-api
+  script:
+    - lerna bootstrap --scope=@magda/authorization-api 
+    - lerna run docker-build-prod --scope=@magda/authorization-api

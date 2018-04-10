@@ -1,0 +1,22 @@
+prebuild:typescript-common:
+  stage: prebuild
+  image: data61/magda-builder-scala:0.0.38-0
+  script:
+    - lerna bootstrap --scope=@magda/typescript-common 
+    - lerna run build --scope=@magda/typescript-common 
+  artifacts:
+    paths:
+    - "node_modules"
+    - "magda-typescript-common/dist"
+    - "magda-typescript-common/node_modules"
+    expire_in: 30 minutes
+
+test:typescript-common:
+  stage: test
+  dependencies: prebuild:typescript-common
+  image: data61/magda-builder-nodejs:0.0.38-0
+  cache:
+    paths: []
+  script:
+    - lerna bootstrap --scope=@magda/typescript-common 
+    - lerna run test --scope=@magda/typescript-common
