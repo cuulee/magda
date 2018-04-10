@@ -27,16 +27,16 @@ RUN set -x \
 	&& apk add --no-cache openjdk8-jre="$JAVA_ALPINE_VERSION" \
 	&& [ "$JAVA_HOME" = "$(docker-java-home)" ]
 
-ENV sbt_version 0.13.7
-ENV sbt_home /usr/local/sbt
+ENV SBT_VERSION 0.13.7
+ENV SBT_HOME /usr/local/sbt
 ENV SCALA_VERSION 2.11.12
-ENV PATH ${PATH}:${sbt_home}/bin
+ENV PATH ${PATH}:${SBT_HOME}/bin
 
 
 # Install sbt
-RUN mkdir -p "$sbt_home" && \
+RUN mkdir -p "$SBT_HOME" && \
     apk add --no-cache --update wget bash && \
-    wget -qO - --no-check-certificate "http://dl.bintray.com/sbt/native-packages/sbt/$sbt_version/sbt-$sbt_version.tgz" | tar xz -C $sbt_home --strip-components=1 && \
+    wget -qO - --no-check-certificate "http://dl.bintray.com/sbt/native-packages/sbt/$SBT_VERSION/sbt-$SBT_VERSION.tgz" | tar xz -C $SBT_HOME --strip-components=1 && \
     apk del wget
 
 WORKDIR /app
