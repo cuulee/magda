@@ -27,8 +27,11 @@ test:authorization-api:
 dockerize:authorization-api:
   stage: dockerize
   image: data61/magda-builder-docker:0.0.38-0
+  services:
+  - docker:dind
   dependencies: 
   - build:authorization-api
   script:
-    - lerna bootstrap --scope=@magda/authorization-api 
-    - lerna run docker-build-prod --scope=@magda/authorization-api
+  - docker info
+  - lerna bootstrap --scope=@magda/authorization-api 
+  - lerna run docker-build-prod --scope=@magda/authorization-api
