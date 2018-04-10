@@ -121,9 +121,11 @@ if (argv.build) {
                 console.error("Can not push an image without a tag.");
                 process.exit(1);
             }
-            childProcess.spawnSync("docker", ["push", tag], {
+            const process = childProcess.spawnSync("docker", ["push", tag], {
                 stdio: "inherit"
             });
+
+            code = process.status;
         }
         process.exit(code);
     });
