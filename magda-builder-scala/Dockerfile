@@ -28,15 +28,18 @@ RUN set -x \
 	&& [ "$JAVA_HOME" = "$(docker-java-home)" ]
 
 ENV SBT_VERSION 0.13.7
+ENV SBT_OPTS: -Dsbt.global.base=/magda-data/magda/sbt-cache/sbtboot -Dsbt.boot.directory=/magda-data/magda/sbt-cache/boot -Dsbt.ivy.home=/magda-data/magda/sbt-cache/ivy
 ENV SBT_HOME /usr/local/sbt
 ENV SCALA_VERSION 2.11.12
 ENV PATH ${PATH}:${SBT_HOME}/bin
+
 
 
 # Install sbt
 RUN mkdir -p "$SBT_HOME" && \
     apk add --no-cache --update wget bash && \
     wget -qO - --no-check-certificate "http://dl.bintray.com/sbt/native-packages/sbt/$SBT_VERSION/sbt-$SBT_VERSION.tgz" | tar xz -C $SBT_HOME --strip-components=1 && \
-    apk del wget
+    apk del wget && \
+	sbt sbtVersion
 
 WORKDIR /app
