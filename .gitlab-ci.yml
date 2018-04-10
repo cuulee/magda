@@ -25,7 +25,8 @@ cache:
   - target
   - "*/target"
 
-include: magda-authorization-api/.gitlab-ci.yml
+include: /magda-authorization-api/.gitlab-ci.yml
+include: /magda-typescript-common/.gitlab-ci.yml
 
 # build-nodejs:
 #   stage: build
