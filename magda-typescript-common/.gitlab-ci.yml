@@ -7,8 +7,8 @@ prebuild:typescript-common:
   artifacts:
     paths:
     - "node_modules"
-    - "magda-typescript-common/dist"
-    - "magda-typescript-common/node_modules"
+    - "*/dist"
+    - "*/node_modules"
     expire_in: 30 minutes
 
 test:typescript-common:

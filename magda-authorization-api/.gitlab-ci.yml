@@ -9,8 +9,8 @@ build:authorization-api:
   artifacts:
     paths:
     - "node_modules"
-    - "magda-authorization-api/dist"
-    - "magda-authorization-api/node_modules"
+    - "*/dist"
+    - "*/node_modules"
     expire_in: 30 minutes
 
 test:authorization-api:

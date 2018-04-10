@@ -21,10 +21,11 @@ const sbt = spawnSync(
     ],
     {
         cwd: path.resolve(__dirname, ".."),
-        stdio: "inherit",
+        stdio: [0, 1, 2],
         shell: true
     }
 );
+
 if (sbt.status !== 0) {
     throw sbt.error;
 }
@@ -49,7 +50,7 @@ const java = spawnSync(
     ],
     {
         cwd: __dirname,
-        stdio: "inherit",
+        stdio: [0, 1, 2],
         shell: false
     }
 );
