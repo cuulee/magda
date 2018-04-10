@@ -34,4 +34,4 @@ dockerize:authorization-api:
   script:
   - docker info
   - lerna bootstrap --scope=@magda/authorization-api 
-  - lerna run docker-build-prod --scope=@magda/authorization-api
+  - lerna run docker-build-prod --scope=@magda/authorization-api -- -- --repository=registry.gitlab.com/magda-data/magda --version=$CI_COMMIT_SHA

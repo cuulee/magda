@@ -3,6 +3,7 @@ image: data61/magda-builder:0.0.38-0
 variables:
   CI: "true"
   SBT_OPTS: -Dsbt.global.base=sbt-cache/sbtboot -Dsbt.boot.directory=sbt-cache/boot -Dsbt.ivy.home=sbt-cache/ivy
+  DOCKER_DRIVER: overlay2
 
 stages:
   - prebuild
