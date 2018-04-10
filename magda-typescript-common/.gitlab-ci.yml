@@ -13,7 +13,8 @@ prebuild:typescript-common:
 
 test:typescript-common:
   stage: test
-  dependencies: prebuild:typescript-common
+  dependencies: 
+  - prebuild:typescript-common
   image: data61/magda-builder-nodejs:0.0.38-0
   cache:
     paths: []

@@ -1,7 +1,8 @@
 build:authorization-api:
   stage: build
   image: data61/magda-builder-nodejs:0.0.38-0
-  dependencies: prebuild:typescript-common
+  dependencies: 
+  - prebuild:typescript-common
   script:
     - lerna bootstrap --scope=@magda/authorization-api 
     - lerna run build --scope=@magda/authorization-api 
@@ -15,7 +16,8 @@ build:authorization-api:
 test:authorization-api:
   stage: test
   image: data61/magda-builder-nodejs:0.0.38-0
-  dependencies: build:authorization-api
+  dependencies: 
+  - build:authorization-api
   cache:
     paths: []
   script:
@@ -25,7 +27,8 @@ test:authorization-api:
 dockerize:authorization-api:
   stage: dockerize
   image: data61/magda-builder-docker:0.0.38-0
-  dependencies: build:authorization-api
+  dependencies: 
+  - build:authorization-api
   script:
     - lerna bootstrap --scope=@magda/authorization-api 
     - lerna run docker-build-prod --scope=@magda/authorization-api
