@@ -10,6 +10,7 @@ prebuild:typescript-common:
     paths:
     - "node_modules"
     - "*/dist"
+    - "magda-typescript-common/src/generated"
     - "*/node_modules"
     expire_in: 30 minutes
 
