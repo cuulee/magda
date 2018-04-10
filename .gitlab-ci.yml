@@ -25,6 +25,9 @@ cache:
   - target
   - "*/target"
 
+before_script:
+- lerna bootstrap --scope=@magda/scripts
+
 include: /magda-authorization-api/.gitlab-ci.yml
 include: /magda-typescript-common/.gitlab-ci.yml
 
