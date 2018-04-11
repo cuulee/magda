@@ -41,7 +41,7 @@ preview:
     entrypoint: ["/bin/sh", "-c"]
   before_script: []
   script:
-  - cat $KUBECTL_CONFIG > kubectlconfig.yaml
+  - cat "$KUBECTL_CONFIG" > kubectlconfig.yaml
   - kubectl get pods --kubeconfig=kubectlconfig.yaml --token=${KUBECTL_TOKEN}
 
 
