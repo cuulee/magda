@@ -37,7 +37,7 @@ preview:
   stage: prebuild
   environment: Dev
   image: 
-    name: lachlanevenson/k8s-kubectl
+    name: lachlanevenson/k8s-helm
     entrypoint: ["/bin/sh", "-c"]
   before_script: []
   script:
