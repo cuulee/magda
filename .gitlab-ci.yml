@@ -42,8 +42,10 @@ preview:
   before_script: []
   script:
   - echo "$KUBECTL_CONFIG" > kubectlconfig.yaml
-  - cat kubectlconfig.yaml
-  - kubectl get pods --kubeconfig=kubectlconfig.yaml --token=${KUBECTL_TOKEN}
+  - export KUBECONFIG=kubectlconfig.yaml
+  - helm ls
+#  - helm upgrade test helm/magda --install --namespace test -f helm/magda-dev.yml --set tags.all=false,tags.authorization-api=true --token=${KUBECTL_TOKEN} --kubeconfig=kubectlconfig.yaml 
+#  - 
 
 
 # build-nodejs:
