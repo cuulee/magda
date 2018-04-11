@@ -41,7 +41,8 @@ preview:
     entrypoint: ["/bin/sh", "-c"]
   before_script: []
   script:
-  - echo "$TEST"
+  - echo "$TEST" > blah.txt
+  - cat blah.txt
   - echo "$KUBECTL_CONFIG" > kubectlconfig.yaml
   - kubectl get pods --kubeconfig=kubectlconfig.yaml --token=${KUBECTL_TOKEN}
 
