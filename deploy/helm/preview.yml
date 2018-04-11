@@ -4,6 +4,7 @@ global:
     maxUnavailable: 1
   image:
     tag: "0.0.38-0"
+    imagePullSecret: "regcred"
 
 tags:
   all: false
