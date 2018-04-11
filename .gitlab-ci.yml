@@ -30,12 +30,12 @@ before_script:
 - lerna bootstrap --scope=@magda/scripts
 
 # include:
-# - /magda-authorization-api/.gitlab-ci.yml
-# - /magda-typescript-common/.gitlab-ci.yml
+- /magda-authorization-api/.gitlab-ci.yml
+- /magda-typescript-common/.gitlab-ci.yml
 
 preview:
-  stage: prebuild
-  environment: Dev
+  stage: preview
+  cache: []
   image: 
     name: lachlanevenson/k8s-helm
     entrypoint: ["/bin/sh", "-c"]
@@ -43,8 +43,7 @@ preview:
   script:
   - echo "$KUBECTL_CONFIG" > kubectlconfig.yaml
   - export KUBECONFIG=kubectlconfig.yaml
-  - helm ls
-#  - helm upgrade test helm/magda --install --namespace test -f helm/magda-dev.yml --set tags.all=false,tags.authorization-api=true --token=${KUBECTL_TOKEN} --kubeconfig=kubectlconfig.yaml 
+  - helm upgrade $CI_COMMIT_REF_SLUG deploy/helm/magda --install --namespace $CI_COMMIT_REF_SLUG -f deploy/helm/preview.yml --set global.image.repository=registry.gitlab.com/magda-data/magda,global.image.tag=$CI_COMMIT_SHA,tags.all=false,tags.authorization-api=true --token=${KUBECTL_TOKEN} --kubeconfig=kubectlconfig.yaml 
 #  - 
 
 
