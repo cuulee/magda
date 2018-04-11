@@ -10,7 +10,7 @@ stages:
   - build
   - test
   - dockerize
-  - deploy-pr
+  - preview
   - deploy-dev
   - deploy-prod
 
@@ -32,6 +32,15 @@ before_script:
 include:
 - /magda-authorization-api/.gitlab-ci.yml
 - /magda-typescript-common/.gitlab-ci.yml
+
+preview:
+  stage: preview
+  environment: Dev
+  image: lachlanevenson/k8s-kubectl
+  script:
+  - cat $KUBECTL_CONFIG > kubectlconfig.yaml
+  - kubectl get pods --kubeconfig=kubectlconfig.yaml --token=${KUBECTL_TOKEN}
+
 
 # build-nodejs:
 #   stage: build
