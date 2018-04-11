@@ -34,9 +34,11 @@ include:
 - /magda-typescript-common/.gitlab-ci.yml
 
 preview:
-  stage: preview
+  stage: prebuild
   environment: Dev
-  image: lachlanevenson/k8s-kubectl
+  image: 
+    name: lachlanevenson/k8s-kubectl
+    entrypoint: ["/bin/sh", "-c"]
   script:
   - cat $KUBECTL_CONFIG > kubectlconfig.yaml
   - kubectl get pods --kubeconfig=kubectlconfig.yaml --token=${KUBECTL_TOKEN}

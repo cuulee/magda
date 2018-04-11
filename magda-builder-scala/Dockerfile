@@ -28,7 +28,7 @@ RUN set -x \
 	&& [ "$JAVA_HOME" = "$(docker-java-home)" ]
 
 ENV SBT_VERSION 0.13.7
-ENV SBT_OPTS -Dsbt.global.base=/magda-data/magda/sbt-cache/sbtboot -Dsbt.boot.directory=/magda-data/magda/sbt-cache/boot -Dsbt.ivy.home=/magda-data/magda/sbt-cache/ivy
+ENV SBT_OPTS "-Dsbt.global.base=/magda-data/magda/sbt-cache/sbtboot -Dsbt.boot.directory=/magda-data/magda/sbt-cache/boot -Dsbt.ivy.home=/magda-data/magda/sbt-cache/ivy"
 ENV SBT_HOME /usr/local/sbt
 ENV SCALA_VERSION 2.11.12
 ENV PATH ${PATH}:${SBT_HOME}/bin
