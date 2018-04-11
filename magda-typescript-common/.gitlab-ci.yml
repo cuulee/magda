@@ -2,6 +2,10 @@ prebuild:typescript-common:
   stage: prebuild
   image: data61/magda-builder-scala:0.0.38-0
   script:
+    - pwd
+    - ls sbt-cache
+    - echo $SBT_HOME
+    - echo $SBT_OPTS
     - cat /dev/null | sbt registryApi/compile
     - lerna bootstrap --scope=@magda/typescript-common 
     - lerna run build --scope=@magda/typescript-common 

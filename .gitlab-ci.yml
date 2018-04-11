@@ -39,6 +39,7 @@ preview:
   image: 
     name: lachlanevenson/k8s-kubectl
     entrypoint: ["/bin/sh", "-c"]
+  before_script: []
   script:
   - cat $KUBECTL_CONFIG > kubectlconfig.yaml
   - kubectl get pods --kubeconfig=kubectlconfig.yaml --token=${KUBECTL_TOKEN}
