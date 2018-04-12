@@ -38,8 +38,7 @@ preview:
   cache: 
     paths: []
   image: 
-    name: lachlanevenson/k8s-helm
-    entrypoint: ["/bin/sh", "-c"]
+    name: dtzar/helm-kubectl
   before_script: []
   script:
   - echo "$KUBECTL_CONFIG" > kubectlconfig.yaml
