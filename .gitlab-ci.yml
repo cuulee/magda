@@ -43,7 +43,7 @@ preview:
   script:
   - echo "$KUBECTL_CONFIG" > kubectlconfig.yaml
   - export KUBECONFIG=kubectlconfig.yaml
-  - kubectl create secret docker-registry regcred --docker-server=registry.gitlab.com --docker-username=gitlab-ci-token --docker-password=$CI_JOB_TOKEN --docker-email=alex.gilleran@data61.csiro.au --namespace $CI_COMMIT_REF_SLUG 
+  - kubectl create secret docker-registry regcred --docker-server=registry.gitlab.com --docker-username=gitlab-ci-token --docker-password=$CI_JOB_TOKEN --docker-email=alex.gilleran@data61.csiro.au --namespace $CI_COMMIT_REF_SLUG --dry-run -o json | kubectl apply --namespace $CI_COMMIT_REF_SLUG -f -
   - helm upgrade $CI_COMMIT_REF_SLUG deploy/helm/magda --install --namespace $CI_COMMIT_REF_SLUG -f deploy/helm/preview.yml --set global.image.repository=registry.gitlab.com/magda-data/magda/data61,global.image.tag=$CI_COMMIT_SHA,tags.all=false,tags.authorization-api=true
 #  - 
 
