@@ -45,6 +45,11 @@ const argv = yargs
                 "Push the build image to the docker registry.  This parameter is only used if --build is specified.",
             type: "boolean",
             default: false
+        },
+        cacheFromVersion: {
+            description:
+                "Version to cache from when building, using the --cache-from field in docker. Will use the same repository and name",
+            type: "string"
         }
     })
     .help().argv;
@@ -101,15 +106,17 @@ if (argv.build) {
         .map(tag => ["-t", tag])
         .reduce((soFar, tagArgs) => soFar.concat(tagArgs), []);
 
+    const cacheFromArgs = argv.cacheFromVersion
+        ? ["--cache-from", getRepository() + getName() + ":latest"]
+        : [];
+
     const dockerProcess = childProcess.spawn(
         "docker",
         [
             ...extraParameters,
             "build",
             ...tagArgs,
-            // FIXME!!!! :
-            "--cache-from",
-            getRepository() + "/" + getName() + ":latest",
+            ...cacheFromArgs,
             "-f",
             `./component/Dockerfile`,
             "-"

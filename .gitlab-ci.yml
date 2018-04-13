@@ -33,9 +33,11 @@ include:
 - /magda-authorization-api/.gitlab-ci.yml
 - /magda-typescript-common/.gitlab-ci.yml
 - /magda-postgres/.gitlab-ci.yml
+- /magda-migrator-authorization-db/.gitlab-ci.yml
 
 preview:
   stage: preview
+  dependencies: []
   cache: 
     paths: []
   image: 
