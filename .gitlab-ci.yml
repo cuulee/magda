@@ -41,12 +41,13 @@ preview:
     name: dtzar/helm-kubectl
   before_script: []
   script:
+  - apk add --update pwgen
   - echo "$KUBECTL_CONFIG" > kubectlconfig.yaml
   - export KUBECONFIG=kubectlconfig.yaml
-  - kubectl create secret docker-registry regcred --docker-server=registry.gitlab.com --docker-username=gitlab-ci-token --docker-password=$CI_JOB_TOKEN --docker-email=alex.gilleran@data61.csiro.au --namespace $CI_COMMIT_REF_SLUG --dry-run -o json | kubectl apply --namespace $CI_COMMIT_REF_SLUG -f -
+  - 'echo {\"apiVersion\": \"v1\", \"kind\": \"Secret\", \"metadata\": {\"name\": \"auth-secrets\"}, \"type\": \"Opaque\", \"data\": {\"jwt-secret\": \"$(pwgen 16 1)\", \"session-secret\":\"$(pwgen 16 1)\"}} | kubectl create --namespace $CI_COMMIT_REF_SLUG -f -'
+  - kubectl create secret docker-registry regcred --namespace $CI_COMMIT_REF_SLUG --docker-server=registry.gitlab.com --docker-username=gitlab-ci-token --docker-password=$CI_JOB_TOKEN --docker-email=alex.gilleran@data61.csiro.au --dry-run -o json | kubectl apply --namespace $CI_COMMIT_REF_SLUG -f -
+  - kubectl create secret generic db-passwords --namespace $CI_COMMIT_REF_SLUG --from-literal=combined-db=p4ssw0rd --from-literal=combined-db-client=p4ssw0rd --from-literal=authorization-db-client=p4ssw0rd --from-literal=discussions-db-client=p4ssw0rd --from-literal=session-db-client=p4ssw0rd --from-literal=registry-db-client=p4ssw0rd
   - helm upgrade $CI_COMMIT_REF_SLUG deploy/helm/magda --install --namespace $CI_COMMIT_REF_SLUG -f deploy/helm/preview.yml --set global.image.repository=registry.gitlab.com/magda-data/magda/data61,global.image.tag=$CI_COMMIT_SHA,tags.all=false,tags.authorization-api=true
-#  - 
-
 
 # build-nodejs:
 #   stage: build
