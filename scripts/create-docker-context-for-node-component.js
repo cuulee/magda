@@ -48,7 +48,7 @@ const argv = yargs
         },
         cacheFromVersion: {
             description:
-                "Version to cache from when building, using the --cache-from field in docker. Will use the same repository and name",
+                "Version to cache from when building, using the --cache-from field in docker. Will use the same repository and name. Using this options causes the image to be pulled before build.",
             type: "string"
         }
     })
@@ -91,6 +91,22 @@ if (env.ConEmuANSI === "ON") {
 updateDockerFile(componentSrcDir, componentDestDir);
 
 if (argv.build) {
+    const cacheFromImage =
+        argv.cacheFromVersion &&
+        getRepository() + getName() + argv.cacheFromVersion;
+
+    if (cacheFromImage) {
+        // Pull this image into the docker daemon - if it fails we don't care, we'll just go from scratch.
+        const dockerPullProcess = childProcess.spawn(
+            "docker",
+            [...extraParameters, "pull", cacheFromImage],
+            {
+                stdio: ["pipe", "inherit", "inherit"],
+                env: env
+            }
+        );
+    }
+
     const tarProcess = childProcess.spawn(
         tar,
         [...extraParameters, "--dereference", "-czf", "-", "*"],
@@ -106,8 +122,8 @@ if (argv.build) {
         .map(tag => ["-t", tag])
         .reduce((soFar, tagArgs) => soFar.concat(tagArgs), []);
 
-    const cacheFromArgs = argv.cacheFromVersion
-        ? ["--cache-from", getRepository() + getName() + ":latest"]
+    const cacheFromArgs = cacheFromImage
+        ? ["--cache-from", cacheFromImage]
         : [];
 
     const dockerProcess = childProcess.spawn(
