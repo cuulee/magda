@@ -23,18 +23,3 @@ test:authorization-api:
   script:
     - lerna bootstrap --scope=@magda/authorization-api 
     - lerna run test --scope=@magda/authorization-api
-
-dockerize:authorization-api:
-  stage: dockerize
-  image: data61/magda-builder-docker:0.0.38-0
-  services:
-  - docker:dind
-  dependencies: 
-  - build:authorization-api
-  cache:
-    paths: []
-  script:
-  - docker info
-  - lerna bootstrap --scope=@magda/authorization-api 
-  - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
-  - lerna run docker-build-prod --scope=@magda/authorization-api -- -- --repository=registry.gitlab.com/magda-data/magda --version=$CI_COMMIT_SHA
