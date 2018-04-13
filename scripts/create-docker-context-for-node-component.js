@@ -93,15 +93,15 @@ updateDockerFile(componentSrcDir, componentDestDir);
 if (argv.build) {
     const cacheFromImage =
         argv.cacheFromVersion &&
-        getRepository() + getName() + argv.cacheFromVersion;
+        getRepository() + getName() + ":" + argv.cacheFromVersion;
 
     if (cacheFromImage) {
         // Pull this image into the docker daemon - if it fails we don't care, we'll just go from scratch.
-        const dockerPullProcess = childProcess.spawn(
+        const dockerPullProcess = childProcess.spawnSync(
             "docker",
             [...extraParameters, "pull", cacheFromImage],
             {
-                stdio: ["pipe", "inherit", "inherit"],
+                stdio: "inherit",
                 env: env
             }
         );
