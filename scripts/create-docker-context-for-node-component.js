@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 const childProcess = require("child_process");
 const fse = require("fs-extra");
 const path = require("path");
@@ -24,8 +25,9 @@ const argv = yargs
         },
         version: {
             description:
-                "The version to use in auto tag generation. Will default to the current version in package.json. Requires --tag=auto",
-            type: "string"
+                "The version(s) to use in auto tag generation. Will default to the current version in package.json. Requires --tag=auto",
+            type: "string",
+            array: true
         },
         output: {
             description:
@@ -94,8 +96,10 @@ if (argv.build) {
             shell: true
         }
     );
-    const tag = getTag();
-    const tagArgs = tag ? ["-t", tag] : [];
+    const tags = getTags();
+    const tagArgs = tags
+        .map(tag => ["-t", tag])
+        .reduce((soFar, tagArgs) => soFar.concat(tagArgs), []);
 
     const dockerProcess = childProcess.spawn(
         "docker",
@@ -103,6 +107,9 @@ if (argv.build) {
             ...extraParameters,
             "build",
             ...tagArgs,
+            // FIXME!!!! :
+            "--cache-from",
+            getRepository() + "/" + getName() + ":latest",
             "-f",
             `./component/Dockerfile`,
             "-"
@@ -117,15 +124,25 @@ if (argv.build) {
         fse.removeSync(dockerContextDir);
 
         if (code === 0 && argv.push) {
-            if (!tag) {
+            if (tags.length === 0) {
                 console.error("Can not push an image without a tag.");
                 process.exit(1);
             }
-            const process = childProcess.spawnSync("docker", ["push", tag], {
-                stdio: "inherit"
-            });
 
-            code = process.status;
+            // Stop if there's a code !== 0
+            tags.every(tag => {
+                const process = childProcess.spawnSync(
+                    "docker",
+                    ["push", tag],
+                    {
+                        stdio: "inherit"
+                    }
+                );
+
+                code = process.status;
+
+                return code === 0;
+            });
         }
         process.exit(code);
     });
@@ -161,29 +178,35 @@ if (argv.build) {
     });
 }
 
-function getVersion() {
+function getVersions() {
     return (
-        argv.version ||
-        (!argv.local && process.env.npm_package_version
-            ? process.env.npm_package_version
-            : "latest")
+        argv.version || [
+            !argv.local && process.env.npm_package_version
+                ? process.env.npm_package_version
+                : "latest"
+        ]
     );
 }
 
-function getTag() {
-    let tag = argv.tag;
-    if (tag === "auto") {
-        const tagPrefix = getRepository();
+function getName() {
+    return process.env.npm_package_config_docker_name
+        ? process.env.npm_package_config_docker_name
+        : process.env.npm_package_name
+            ? process.env.npm_package_name
+            : "UnnamedImage";
+}
 
-        const name = process.env.npm_package_config_docker_name
-            ? process.env.npm_package_config_docker_name
-            : process.env.npm_package_name
-                ? process.env.npm_package_name
-                : "UnnamedImage";
-        tag = tagPrefix + name + ":" + getVersion();
+function getTags() {
+    if (argv.tag === "auto") {
+        return getVersions().map(version => {
+            const tagPrefix = getRepository();
+            const name = getName();
+
+            return (tag = tagPrefix + name + ":" + version);
+        });
+    } else {
+        return argv.tag ? [argv.tag] : [];
     }
-
-    return tag;
 }
 
 function getRepository() {
@@ -194,7 +217,7 @@ function getRepository() {
 }
 
 function updateDockerFile(sourceDir, destDir) {
-    const tag = getVersion();
+    const tags = getVersions();
     const repository = getRepository();
     const dockerFileContents = fse.readFileSync(
         path.resolve(sourceDir, "Dockerfile"),
@@ -206,7 +229,7 @@ function updateDockerFile(sourceDir, destDir) {
         // Add a tag if none specified
         .replace(
             /FROM (.+\/[^:\s]+)(\s|$)/,
-            "FROM $1" + (tag ? ":" + tag : "") + "$2"
+            "FROM $1" + (tags[0] ? ":" + tags[0] : "") + "$2"
         );
 
     fse.writeFileSync(
