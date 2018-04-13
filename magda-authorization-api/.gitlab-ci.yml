@@ -31,6 +31,8 @@ dockerize:authorization-api:
   - docker:dind
   dependencies: 
   - build:authorization-api
+  cache:
+    paths: []
   script:
   - docker info
   - lerna bootstrap --scope=@magda/authorization-api 
