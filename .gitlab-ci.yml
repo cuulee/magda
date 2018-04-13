@@ -58,7 +58,7 @@ preview:
   script:
   - apk add --update pwgen
   - echo "$KUBECTL_CONFIG" > kubectlconfig.yaml
-  - KUBECONFIG=kubectlconfig.yaml
+  - export KUBECONFIG=kubectlconfig.yaml
   - JWT_SECRET="${JWT_SECRET:-$(pwgen 16 1)}"
   - SESSION_SECRET="${SESSION_SECRET:-$(pwgen 16 1)}"
   - DB_PASSWORD="${DB_PASSWORD:-p4ssw0rd}"
