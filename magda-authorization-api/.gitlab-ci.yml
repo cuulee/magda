@@ -13,13 +13,13 @@ build:authorization-api:
     - "*/node_modules"
     expire_in: 30 minutes
 
-test:authorization-api:
-  stage: test
-  image: data61/magda-builder-nodejs:0.0.38-0
-  dependencies: 
-  - build:authorization-api
-  cache:
-    paths: []
-  script:
-    - lerna bootstrap --scope=@magda/authorization-api 
-    - lerna run test --scope=@magda/authorization-api
+# test:authorization-api:
+#   stage: test
+#   image: data61/magda-builder-nodejs:0.0.38-0
+#   dependencies: 
+#   - build:authorization-api
+#   cache:
+#     paths: []
+#   script:
+#     - lerna bootstrap --scope=@magda/authorization-api 
+#     - lerna run test --scope=@magda/authorization-api
