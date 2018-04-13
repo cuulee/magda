@@ -45,9 +45,6 @@ dockerize:notjava:
   script:
   - docker info
   - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-  - docker pull $CI_REGISTRY/magda-data/magda/data61/magda-postgres:latest || true
-  - docker pull $CI_REGISTRY/magda-data/magda/data61/magda-authorization-api:latest || true
-  - docker pull $CI_REGISTRY/magda-data/magda/data61/magda-migrator-authorization-db:latest || true
   - lerna bootstrap --include-filtered-dependencies --scope=@magda/postgres --scope=@magda/authorization-api --scope=@magda/migrator-authorization-db
   - lerna run docker-build-prod --include-filtered-dependencies --scope=@magda/postgres --scope=@magda/authorization-api --scope=@magda/migrator-authorization-db -- -- --repository=$CI_REGISTRY/magda-data/magda --version=$CI_COMMIT_SHA --version=latest --cacheFromVersion=latest
 
@@ -65,7 +62,7 @@ preview:
   - export KUBECONFIG=kubectlconfig.yaml
   - 'echo {\"apiVersion\": \"v1\", \"kind\": \"Secret\", \"metadata\": {\"name\": \"auth-secrets\"}, \"type\": \"Opaque\", \"data\": {\"jwt-secret\": \"$(pwgen 16 1)\", \"session-secret\":\"$(pwgen 16 1)\"}} | kubectl apply --namespace $CI_COMMIT_REF_SLUG -f -'
   - kubectl create secret docker-registry regcred --namespace $CI_COMMIT_REF_SLUG --docker-server=registry.gitlab.com --docker-username=gitlab-ci-token --docker-password=$CI_JOB_TOKEN --docker-email=alex.gilleran@data61.csiro.au --dry-run -o json | kubectl apply --namespace $CI_COMMIT_REF_SLUG -f -
-  - kubectl create secret generic db-passwords --from-literal=combined-db=p4ssw0rd --from-literal=auth-db=p4ssw0rd --from-literal=discussions-db=p4ssw0rd --from-literal=session-db=p4ssw0rd  --from-literal=registry-db=p4ssw0rd --from-literal=combined-db-client=p4ssw0rd --from-literal=authorization-db-client=p4ssw0rd --from-literal=discussions-db-client=p4ssw0rd --from-literal=session-db-client=p4ssw0rd --from-literal=registry-db-client=p4ssw0rd --dry-run -o json | kubectl apply --namespace $CI_COMMIT_REF_SLUG -f -
+  - kubectl create secret generic db-passwords --from-literal=combined-db=p4ssw0rd --from-literal=authorization-db=p4ssw0rd --from-literal=discussions-db=p4ssw0rd --from-literal=session-db=p4ssw0rd  --from-literal=registry-db=p4ssw0rd --from-literal=combined-db-client=p4ssw0rd --from-literal=authorization-db-client=p4ssw0rd --from-literal=discussions-db-client=p4ssw0rd --from-literal=session-db-client=p4ssw0rd --from-literal=registry-db-client=p4ssw0rd --dry-run -o json | kubectl apply --namespace $CI_COMMIT_REF_SLUG -f -
   - helm upgrade $CI_COMMIT_REF_SLUG deploy/helm/magda --install --namespace $CI_COMMIT_REF_SLUG -f deploy/helm/preview.yml --set global.image.repository=registry.gitlab.com/magda-data/magda/data61,global.image.tag=$CI_COMMIT_SHA,tags.all=false,tags.authorization-api=true,tags.combined-db=true,tags.authorization-db=true --timeout 1200 --wait
 
 # build-nodejs:
